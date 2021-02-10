@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+  terraform:
+    image: hashicorp/terraform:0.14.4
+    volumes:
+      - .:/infra
+      - ~/.aws/:/root/.aws:ro
+      - ~/.ssh/:/root/.ssh:ro
+    working_dir: /infra
+    environment: 
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
