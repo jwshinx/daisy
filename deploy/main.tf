@@ -115,8 +115,8 @@ resource "aws_ecs_service" "weather_service" {
     target_group_arn = aws_lb_target_group.target_group.arn # Referencing our target group
     # container_name   = aws_ecs_task_definition.weather_task.family
     # try again
-    container_name   = "weather_app"
-    container_port   = 3000 # Specifying the container port
+    container_name = "weather_app"
+    container_port = 3000 # Specifying the container port
   }
 
   network_configuration {
@@ -165,14 +165,14 @@ resource "aws_alb" "application_load_balancer" {
 # Creating a security group for the load balancer:
 resource "aws_security_group" "load_balancer_security_group" {
   ingress {
-    # from_port   = 80 # Allowing traffic in from port 80
-    # to_port     = 80
-    # protocol    = "tcp"
-    # cidr_blocks = ["0.0.0.0/0"] # Allowing traffic in from all sources
-    from_port   = 0             # Allowing any incoming port
-    to_port     = 0             # Allowing any outgoing port
-    protocol    = "-1"          # Allowing any outgoing protocol 
-    cidr_blocks = ["0.0.0.0/0"] # Allowing traffic out to all IP addresses
+    from_port   = 80 # Allowing traffic in from port 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Allowing traffic in from all sources
+    # from_port   = 0             # Allowing any incoming port
+    # to_port     = 0             # Allowing any outgoing port
+    # protocol    = "-1"          # Allowing any outgoing protocol 
+    # cidr_blocks = ["0.0.0.0/0"] # Allowing traffic out to all IP addresses
   }
 
   egress {
@@ -189,6 +189,10 @@ resource "aws_lb_target_group" "target_group" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_default_vpc.default_vpc.id # Referencing the default VPC
+  depends_on = [
+    aws_alb.application_load_balancer
+  ]
+
   health_check {
     matcher = "200,301,302"
     path    = "/"
