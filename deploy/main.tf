@@ -131,6 +131,9 @@ resource "aws_ecs_service" "weather_service" {
 }
 
 resource "aws_security_group" "service_security_group" {
+  description = "allow access to application load balancer"
+  name        = "weather-service-sg"
+  vpc_id      = aws_default_vpc.default_vpc.id
   ingress {
     from_port = 0
     to_port   = 0
