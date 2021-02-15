@@ -59,7 +59,7 @@ resource "aws_iam_role" "task_execution_role" {
 
 resource "aws_iam_role" "app_iam_role" {
   # role necessary for runtime
-  name               = "weather-app-iam-roll-task"
+  name               = "weather-app-iam-role-task"
   assume_role_policy = file("./templates/ecs/assume-role-policy.json")
 }
 
@@ -110,7 +110,7 @@ resource "aws_ecs_service" "weather_service" {
   cluster         = aws_ecs_cluster.weather_cluster.id
   task_definition = aws_ecs_task_definition.weather_task.arn
   launch_type     = "FARGATE"
-  desired_count   = 1 # Setting the number of containers we want deployed to 3
+  desired_count   = 3 # Setting the number of containers we want deployed to 3
 
   network_configuration {
     security_groups = [aws_security_group.service_security_group.id]
@@ -123,7 +123,7 @@ resource "aws_ecs_service" "weather_service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.target_group.arn # Referencing our target group
+    target_group_arn = aws_lb_target_group.weather_tg.arn # Referencing our target group
     container_name   = aws_ecs_task_definition.weather_task.family
     # try again
     # container_name = "weather"
@@ -175,7 +175,7 @@ resource "aws_default_subnet" "default_subnet_c" {
 #####################################################################
 # load balancer
 #####################################################################
-resource "aws_alb" "application_load_balancer" {
+resource "aws_alb" "weather_alb" {
   name               = "weather-lb" # Naming our load balancer
   load_balancer_type = "application"
   subnets = [ # Referencing the default subnets
@@ -212,14 +212,14 @@ resource "aws_security_group" "load_balancer_security_group" {
   }
 }
 
-resource "aws_lb_target_group" "target_group" {
-  name        = "target-group"
+resource "aws_lb_target_group" "weather_tg" {
+  name        = "weather-tg"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_default_vpc.default_vpc.id # Referencing the default VPC
   depends_on = [
-    aws_alb.application_load_balancer
+    aws_alb.weather_alb
   ]
 
   health_check {
@@ -229,11 +229,11 @@ resource "aws_lb_target_group" "target_group" {
 }
 
 resource "aws_lb_listener" "listener" {
-  load_balancer_arn = aws_alb.application_load_balancer.arn # Referencing our load balancer
+  load_balancer_arn = aws_alb.weather_alb.arn # Referencing our load balancer
   port              = "80"
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.target_group.arn # Referencing our tagrte group
+    target_group_arn = aws_lb_target_group.weather_tg.arn # Referencing our tagrte group
   }
 }
