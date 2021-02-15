@@ -44,12 +44,12 @@ resource "aws_ecs_task_definition" "weather_task" {
     }
   ]
   DEFINITION
-  requires_compatibilities = ["FARGATE"]                          # Stating that we are using ECS Fargate
-  network_mode             = "awsvpc"                             # Using awsvpc as our network mode as this is required for Fargate
-  memory                   = 512                                  # Specifying the memory our container requires
-  cpu                      = 256                                  # Specifying the CPU our container requires
-  execution_role_arn       = aws_iam_role.task_execution_role.arn # starting
-  task_role_arn            = aws_iam_role.app_iam_role.arn        # runtime
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  memory                   = 512
+  cpu                      = 256
+  execution_role_arn       = aws_iam_role.task_execution_role.arn
+  task_role_arn            = aws_iam_role.app_iam_role.arn
 }
 
 resource "aws_iam_role" "task_execution_role" {
@@ -96,21 +96,15 @@ resource "aws_iam_role_policy_attachment" "task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# resource "aws_iam_role_policy_attachment" "task_execution_role_policy" {
-#   role       = aws_iam_role.task_execution_role.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-# }
-
 #####################################################################
 # service
 #####################################################################
 resource "aws_ecs_service" "weather_service" {
-  name = "weather-service"
-  # cluster         = aws_ecs_cluster.weather_cluster.name # no effect
+  name            = "weather-service"
   cluster         = aws_ecs_cluster.weather_cluster.id
   task_definition = aws_ecs_task_definition.weather_task.arn
   launch_type     = "FARGATE"
-  desired_count   = 3 # Setting the number of containers we want deployed to 3
+  desired_count   = 3
 
   network_configuration {
     security_groups = [aws_security_group.service_security_group.id]
@@ -125,9 +119,7 @@ resource "aws_ecs_service" "weather_service" {
   load_balancer {
     target_group_arn = aws_lb_target_group.weather_tg.arn # Referencing our target group
     container_name   = aws_ecs_task_definition.weather_task.family
-    # try again
-    # container_name = "weather"
-    container_port = 3000 # Specifying the container port
+    container_port   = 3000
   }
 }
 
