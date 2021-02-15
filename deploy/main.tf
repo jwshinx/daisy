@@ -26,7 +26,7 @@ resource "aws_ecs_cluster" "weather_cluster" {
 # task definition
 #####################################################################
 resource "aws_ecs_task_definition" "weather_task" {
-  family                   = "weather-task" # Naming our first task
+  family                   = "weather" # Naming our first task
   container_definitions    = <<DEFINITION
   [
     {
@@ -124,9 +124,9 @@ resource "aws_ecs_service" "weather_service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.target_group.arn # Referencing our target group
-    # container_name   = aws_ecs_task_definition.weather_task.family
+    container_name   = aws_ecs_task_definition.weather_task.family
     # try again
-    container_name = "weather"
+    # container_name = "weather"
     container_port = 3000 # Specifying the container port
   }
 }
@@ -222,10 +222,10 @@ resource "aws_lb_target_group" "target_group" {
     aws_alb.application_load_balancer
   ]
 
-  # health_check {
-  #   matcher = "200,301,302"
-  #   path    = "/"
-  # }
+  health_check {
+    matcher = "200,301,302"
+    path    = "/"
+  }
 }
 
 resource "aws_lb_listener" "listener" {
