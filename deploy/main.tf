@@ -30,7 +30,7 @@ resource "aws_ecs_task_definition" "weather_task" {
   container_definitions    = <<DEFINITION
   [
     {
-      "name": "weather_app",
+      "name": "weather",
       "image": "${var.ecr_image}",
       "essential": true,
       "portMappings": [
@@ -105,7 +105,8 @@ resource "aws_iam_role_policy_attachment" "task_execution_role_policy" {
 # service
 #####################################################################
 resource "aws_ecs_service" "weather_service" {
-  name            = "weather-service"
+  name = "weather-service"
+  # cluster         = aws_ecs_cluster.weather_cluster.name # no effect
   cluster         = aws_ecs_cluster.weather_cluster.id
   task_definition = aws_ecs_task_definition.weather_task.arn
   launch_type     = "FARGATE"
@@ -125,7 +126,7 @@ resource "aws_ecs_service" "weather_service" {
     target_group_arn = aws_lb_target_group.target_group.arn # Referencing our target group
     # container_name   = aws_ecs_task_definition.weather_task.family
     # try again
-    container_name = "weather_app"
+    container_name = "weather"
     container_port = 3000 # Specifying the container port
   }
 }
@@ -138,6 +139,9 @@ resource "aws_security_group" "service_security_group" {
     from_port = 0
     to_port   = 0
     protocol  = "-1"
+    # from_port = 80
+    # to_port   = 80
+    # protocol  = "tcp"
     # Only allowing traffic in from the load balancer security group
     security_groups = [aws_security_group.load_balancer_security_group.id]
   }
@@ -218,10 +222,10 @@ resource "aws_lb_target_group" "target_group" {
     aws_alb.application_load_balancer
   ]
 
-  health_check {
-    matcher = "200,301,302"
-    path    = "/"
-  }
+  # health_check {
+  #   matcher = "200,301,302"
+  #   path    = "/"
+  # }
 }
 
 resource "aws_lb_listener" "listener" {
