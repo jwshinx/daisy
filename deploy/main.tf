@@ -203,11 +203,18 @@ resource "aws_security_group" "load_balancer_security_group" {
   #   cidr_blocks = ["0.0.0.0/0"] # Allowing traffic out to all IP addresses
   # }
 
+  # egress {
+  #   from_port   = 0             # Allowing any incoming port
+  #   to_port     = 0             # Allowing any outgoing port
+  #   protocol    = "-1"          # Allowing any outgoing protocol 
+  #   cidr_blocks = ["0.0.0.0/0"] # Allowing traffic out to all IP addresses
+  # }
+
   egress {
-    from_port   = 0             # Allowing any incoming port
-    to_port     = 0             # Allowing any outgoing port
-    protocol    = "-1"          # Allowing any outgoing protocol 
-    cidr_blocks = ["0.0.0.0/0"] # Allowing traffic out to all IP addresses
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
