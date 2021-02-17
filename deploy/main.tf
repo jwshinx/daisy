@@ -127,16 +127,30 @@ resource "aws_security_group" "service_security_group" {
   description = "allow access to application load balancer"
   name        = "weather-service-sg"
   vpc_id      = aws_default_vpc.default_vpc.id
+
   ingress {
     from_port = 0
     to_port   = 0
     protocol  = "-1"
-    # from_port = 80
-    # to_port   = 80
-    # protocol  = "tcp"
     # Only allowing traffic in from the load balancer security group
     security_groups = [aws_security_group.load_balancer_security_group.id]
   }
+
+  # ingress {
+  #   from_port = 80
+  #   to_port   = 80
+  #   protocol  = "tcp"
+  #   # Only allowing traffic in from the load balancer security group
+  #   security_groups = [aws_security_group.load_balancer_security_group.id]
+  # }
+
+  # ingress {
+  #   from_port = 3000
+  #   to_port   = 3000
+  #   protocol  = "tcp"
+  #   # Only allowing traffic in from the load balancer security group
+  #   security_groups = [aws_security_group.load_balancer_security_group.id]
+  # }
 
   egress {
     from_port   = 0             # Allowing any incoming port
@@ -217,7 +231,7 @@ resource "aws_lb_target_group" "weather_tg" {
 
 resource "aws_lb_listener" "listener" {
   load_balancer_arn = aws_alb.weather_alb.arn # Referencing our load balancer
-  port              = "80"
+  port              = 80
   protocol          = "HTTP"
   default_action {
     type             = "forward"
