@@ -181,7 +181,7 @@ resource "aws_default_subnet" "default_subnet_c" {
 #####################################################################
 # load balancer
 #####################################################################
-resource "aws_alb" "weather_alb" {
+resource "aws_lb" "weather_lb" {
   name               = "weather-lb" # Naming our load balancer
   load_balancer_type = "application"
   subnets = [ # Referencing the default subnets
@@ -220,17 +220,17 @@ resource "aws_lb_target_group" "weather_tg" {
   target_type = "ip"
   vpc_id      = aws_default_vpc.default_vpc.id # Referencing the default VPC
   depends_on = [
-    aws_alb.weather_alb
+    aws_lb.weather_lb
   ]
 
   health_check {
-    matcher = "200,301,302"
-    path    = "/"
+    # matcher = "200,301,302"
+    path = "/"
   }
 }
 
 resource "aws_lb_listener" "listener" {
-  load_balancer_arn = aws_alb.weather_alb.arn # Referencing our load balancer
+  load_balancer_arn = aws_lb.weather_lb.arn # Referencing our load balancer
   port              = 80
   protocol          = "HTTP"
   default_action {
